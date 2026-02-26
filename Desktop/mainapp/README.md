@@ -116,9 +116,16 @@ npm install
 npm run dev
 ```
 
-### Default Admin Credentials
-- Email: admin@atlastech.com
-- Password: admin123456
+### Admin Credentials
+Set a strong password in `.env` before running `php artisan db:seed`:
+```
+ADMIN_SEED_PASSWORD=YourStrongPassword123!
+```
+- Admin: admin@atlastech.com
+- Manager: manager@atlastech.com
+(Both use the same password from ADMIN_SEED_PASSWORD)
+
+If not set, a random password is generated (check console output when seeding).
 
 ## API Endpoints
 
