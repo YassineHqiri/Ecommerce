@@ -17,12 +17,12 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
-          ssh-private-key: ${{ secrets.EC2_DEPLOY_KEY }}
+          ssh-private-key: ${{ secrets.AWS_PRIVATE_KEY }}
 
       - name: Deploy via SSH
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@ec2-16-171-162-229.eu-north-1.compute.amazonaws.com << 'EOF'
-            cd /var/www/Ecommerce
+            cd /var/www/Ecommerce/mainapp/atlastech-backend
             git reset --hard
             git pull origin main
             composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -30,6 +30,5 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            sudo systemctl restart php8.2-fpm # adjust PHP version if needed
-            sudo systemctl restart nginx
+            sudo systemctl restart apache2
           EOF
