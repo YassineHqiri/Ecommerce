@@ -198,10 +198,18 @@ CORS_ALLOWED_ORIGINS=https://atlastech.com
 ```
 
 ### Frontend
-Create `.env` file:
+Create `.env` file (optional):
 ```
+# Only needed if API is on a different domain. If frontend & API share the same domain, leave empty.
 VITE_API_URL=https://atlastech.com/api
 ```
+
+### AWS / Services Not Loading
+If service packs don't load on AWS:
+1. **Same domain**: If frontend and backend share a domain (e.g. both at `your-domain.com`), no `VITE_API_URL` needed — the app uses `/api` automatically.
+2. **Different domains**: Set `VITE_API_URL=https://your-api-domain.com/api` before `npm run build`.
+3. **CORS**: Add your frontend URL to `CORS_ALLOWED_ORIGINS` in backend `.env` (comma-separated).
+4. **Admin login**: Hidden from public nav. Access directly at `/admin/login`.
 
 ## License
 

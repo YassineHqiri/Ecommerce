@@ -47,11 +47,8 @@ const Layout = () => {
               ))}
             </div>
 
-            {/* CTA */}
+            {/* CTA - Admin login hidden from public (access via /admin/login directly) */}
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/admin/login" className="text-sm text-gray-400 hover:text-white transition-colors">
-                Log in
-              </Link>
               <Link
                 to="/order"
                 className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-100 transition-colors"
@@ -93,7 +90,6 @@ const Layout = () => {
                 </NavLink>
               ))}
               <div className="flex gap-3 pt-2 px-4">
-                <Link to="/admin/login" onClick={() => setMobileOpen(false)} className="text-sm text-gray-400">Log in</Link>
                 <Link to="/order" onClick={() => setMobileOpen(false)} className="px-4 py-2 text-sm font-semibold text-black bg-white rounded-full">Get Started</Link>
               </div>
             </div>
