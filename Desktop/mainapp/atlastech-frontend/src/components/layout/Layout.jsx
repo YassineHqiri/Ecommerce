@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Outlet, Link, NavLink } from 'react-router-dom';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
 
 const Layout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { customer, isCustomer, logout } = useCustomerAuth();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -47,8 +49,20 @@ const Layout = () => {
               ))}
             </div>
 
-            {/* CTA - Admin login hidden from public (access via /admin/login directly) */}
+            {/* CTA - Customer login/register or Get Started */}
             <div className="hidden md:flex items-center gap-3">
+              {isCustomer ? (
+                <>
+                  <Link to="/account" className="text-sm text-gray-400 hover:text-white transition-colors">My Account</Link>
+                  <span className="text-sm text-gray-500">|</span>
+                  <button type="button" onClick={() => logout()} className="text-sm text-gray-400 hover:text-white transition-colors">Log out</button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="text-sm text-gray-400 hover:text-white transition-colors">Log in</Link>
+                  <Link to="/register" className="text-sm text-gray-400 hover:text-white transition-colors">Register</Link>
+                </>
+              )}
               <Link
                 to="/order"
                 className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-gray-100 transition-colors"
@@ -89,7 +103,18 @@ const Layout = () => {
                   {link.name}
                 </NavLink>
               ))}
-              <div className="flex gap-3 pt-2 px-4">
+              <div className="flex flex-wrap gap-3 pt-2 px-4">
+                {isCustomer ? (
+                  <>
+                    <Link to="/account" onClick={() => setMobileOpen(false)} className="text-sm text-gray-400">My Account</Link>
+                    <button type="button" onClick={() => { logout(); setMobileOpen(false); }} className="text-sm text-gray-400">Log out</button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" onClick={() => setMobileOpen(false)} className="text-sm text-gray-400">Log in</Link>
+                    <Link to="/register" onClick={() => setMobileOpen(false)} className="text-sm text-gray-400">Register</Link>
+                  </>
+                )}
                 <Link to="/order" onClick={() => setMobileOpen(false)} className="px-4 py-2 text-sm font-semibold text-black bg-white rounded-full">Get Started</Link>
               </div>
             </div>

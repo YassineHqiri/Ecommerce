@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
+import { CustomerAuthProvider } from './context/CustomerAuthContext'
 import PublicRoutes from './routes/PublicRoutes'
 import AdminRoutes from './routes/AdminRoutes'
 import Login from './pages/admin/Login'
@@ -8,6 +9,7 @@ import Login from './pages/admin/Login'
 function App() {
   return (
     <AuthProvider>
+    <CustomerAuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/admin/login" element={<Login />} />
@@ -15,6 +17,7 @@ function App() {
           <Route path="/*" element={<PublicRoutes />} />
         </Routes>
       </BrowserRouter>
+    </CustomerAuthProvider>
       <Toaster
         position="top-right"
         toastOptions={{

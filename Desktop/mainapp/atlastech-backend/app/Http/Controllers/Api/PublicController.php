@@ -11,8 +11,10 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Resources\ServicePackResource;
 use App\Http\Resources\OrderResource;
+use App\Mail\OrderConfirmationMail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PublicController extends Controller
 {
@@ -30,6 +32,13 @@ class PublicController extends Controller
         try {
             $data = $request->validated();
 
+            // If customer is logged in, link order to user and use their data
+            if ($request->user() && $request->user()->isCustomer()) {
+                $data['user_id'] = $request->user()->id;
+                $data['customer_name'] = $request->user()->name;
+                $data['email'] = $request->user()->email;
+            }
+
             // Find or create CRM lead and link order
             $lead = CrmLead::firstOrCreate(
                 ['email' => $data['email']],
@@ -43,6 +52,13 @@ class PublicController extends Controller
             $data['crm_lead_id'] = $lead->id;
 
             $order = Order::create($data);
+            $order->load('servicePack');
+
+            try {
+                Mail::to($order->email)->send(new OrderConfirmationMail($order));
+            } catch (\Exception $e) {
+                Log::warning('Order confirmation email failed: ' . $e->getMessage());
+            }
 
             Log::info('New order created', [
                 'order_id' => $order->id,

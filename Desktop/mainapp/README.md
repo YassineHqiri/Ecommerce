@@ -59,7 +59,10 @@ deployment/             # Deployment configurations
 - Services Page with service pack listings
 - About Page with company information
 - Contact Page with form validation
-- Order Form with service pack selection
+- Order Form with guest checkout or account checkout
+- Customer registration, login, forgot/reset password
+- My Account: profile, order history, change password
+- Order confirmation email + status update email
 
 ### Admin Panel
 - Secure login/logout
@@ -132,8 +135,26 @@ If not set, a random password is generated (check console output when seeding).
 ### Public Endpoints
 ```
 GET    /api/public/service-packs    # Get all active service packs
-POST   /api/public/orders          # Create new order
-POST   /api/public/contact          # Submit contact form
+POST   /api/public/orders          # Create new order (guest or with customer token)
+POST   /api/public/contact         # Submit contact form
+```
+
+### Auth Endpoints
+```
+POST   /api/auth/register          # Customer registration
+POST   /api/auth/login             # Customer login
+POST   /api/auth/forgot-password   # Request password reset
+POST   /api/auth/reset-password    # Reset password with token
+GET    /api/auth/me                # Current customer (protected)
+POST   /api/auth/logout            # Customer logout (protected)
+```
+
+### Customer Endpoints (Protected)
+```
+GET    /api/customer/orders        # My orders
+GET    /api/customer/profile       # Profile
+PUT    /api/customer/profile       # Update profile
+PUT    /api/customer/password      # Change password
 ```
 
 ### Admin Endpoints (Protected)

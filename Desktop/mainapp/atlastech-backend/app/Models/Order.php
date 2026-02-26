@@ -11,6 +11,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'customer_name',
         'email',
         'phone',
@@ -33,5 +34,10 @@ class Order extends Model
     public function crmLead(): BelongsTo
     {
         return $this->belongsTo(CrmLead::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

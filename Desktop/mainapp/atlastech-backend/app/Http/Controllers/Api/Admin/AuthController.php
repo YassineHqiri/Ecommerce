@@ -17,6 +17,13 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            if (!$user->isAdmin()) {
+                Auth::logout();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access denied. Use the customer login.',
+                ], 403);
+            }
             $token = $user->createToken('admin-token')->plainTextToken;
 
             Log::info('Admin logged in', ['user_id' => $user->id, 'email' => $user->email]);

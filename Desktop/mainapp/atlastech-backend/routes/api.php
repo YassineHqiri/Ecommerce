@@ -13,9 +13,27 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
+    Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
+    Route::post('/forgot-password', [\App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [\App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
+        Route::post('/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
+    });
+});
+
+Route::prefix('customer')->middleware(['auth:sanctum', 'customer'])->group(function () {
+    Route::get('/orders', [\App\Http\Controllers\Api\CustomerController::class, 'orders']);
+    Route::get('/profile', [\App\Http\Controllers\Api\CustomerController::class, 'profile']);
+    Route::put('/profile', [\App\Http\Controllers\Api\CustomerController::class, 'updateProfile']);
+    Route::put('/password', [\App\Http\Controllers\Api\CustomerController::class, 'changePassword']);
+});
+
 Route::prefix('public')->group(function () {
     Route::get('/service-packs', [PublicController::class, 'servicePacks']);
-    Route::post('/orders', [PublicController::class, 'order']);
+    Route::post('/orders', [PublicController::class, 'order'])->middleware('optionalAuth');
     Route::post('/contact', [PublicController::class, 'contact']);
 });
 

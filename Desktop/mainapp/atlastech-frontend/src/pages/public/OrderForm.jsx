@@ -2,15 +2,23 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { publicApi } from '../../services/api';
+import { publicApi, customerApi } from '../../services/api';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
 
 const OrderForm = () => {
   const { packId } = useParams();
+  const { customer, isCustomer, logout } = useCustomerAuth();
   const [packs, setPacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ customer_name: '', email: '', phone: '', selected_pack_id: packId || '', notes: '' });
+  const [form, setForm] = useState({
+    customer_name: '',
+    email: '',
+    phone: '',
+    selected_pack_id: packId || '',
+    notes: '',
+  });
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -19,6 +27,16 @@ const OrderForm = () => {
       .catch(() => toast.error('Failed to load service packs'))
       .finally(() => setLoading(false));
   }, [packId]);
+
+  useEffect(() => {
+    if (isCustomer && customer) {
+      setForm((f) => ({
+        ...f,
+        customer_name: customer.name,
+        email: customer.email,
+      }));
+    }
+  }, [isCustomer, customer]);
 
   const handleChange = (e) => { setForm((f) => ({ ...f, [e.target.name]: e.target.value })); if (errors[e.target.name]) setErrors((e2) => ({ ...e2, [e.target.name]: null })); };
 
@@ -38,7 +56,8 @@ const OrderForm = () => {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      await publicApi.post('/public/orders', form);
+      const api = isCustomer ? customerApi : publicApi;
+      await api.post('/public/orders', form);
       toast.success('Order placed successfully!');
       setSubmitted(true);
     } catch (err) {
@@ -72,7 +91,27 @@ const OrderForm = () => {
       </Link>
 
       <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">Place an Order</h1>
-      <p className="text-gray-500 mb-8">Select your service pack and fill in your details.</p>
+      <p className="text-gray-500 mb-4">Select your service pack and fill in your details.</p>
+
+      {/* Checkout options */}
+      <div className="mb-8 p-4 rounded-2xl bg-gray-50 border border-gray-100">
+        {isCustomer ? (
+          <p className="text-sm text-gray-600">
+            ✓ Signed in as <strong>{customer?.email}</strong>. Your order will be linked to your account.
+            <button type="button" onClick={() => logout()} className="ml-2 text-purple-600 hover:text-purple-700 text-sm font-medium">(Not you? Log out)</button>
+          </p>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm text-gray-600">Checkout as:</span>
+            <span className="text-sm text-gray-900 font-medium">Guest</span>
+            <span className="text-gray-300">|</span>
+            <Link to="/register" className="text-sm font-semibold text-purple-600 hover:text-purple-700">Create account</Link>
+            <span className="text-gray-400">or</span>
+            <Link to="/login" className="text-sm font-semibold text-purple-600 hover:text-purple-700">Log in</Link>
+            <span className="text-sm text-gray-500">to link orders to your account</span>
+          </div>
+        )}
+      </div>
 
       <motion.form initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleSubmit} className="grid lg:grid-cols-5 gap-8">
         {/* Form */}

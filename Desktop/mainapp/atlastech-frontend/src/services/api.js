@@ -42,4 +42,20 @@ export const publicApi = axios.create({
   },
 });
 
+export const customerApi = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+});
+
+customerApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem('customer_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default api;
