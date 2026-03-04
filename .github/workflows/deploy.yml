@@ -1,4 +1,4 @@
-name: Laravel Deploy
+name: Deploy to EC2
 
 on:
   push:
@@ -7,28 +7,29 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.7.0
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to EC2
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USER }}
+          TARGET: /var/www/Atlas-webapp
         with:
-          ssh-private-key: ${{ secrets.EC2_DEPLOY_KEY}}
-
-      - name: Deploy via SSH
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@ec2-16-171-162-229.eu-north-1.compute.amazonaws.com << 'EOF'
-            cd /var/www/Ecommerce/mainapp/atlastech-backend
-            git reset --hard
-            git pull origin main
-            composer install --no-interaction --prefer-dist --optimize-autoloader
-            php artisan migrate --force
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            sudo systemctl restart apache2
-          EOF
+          source: "."
+          target: "/var/www/Atlas-webapp"
+          
+      - name: Execute deploy script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/Atlas-webapp
+            docker-compose down
+            docker-compose build --no-cache
+            docker-compose up -d
